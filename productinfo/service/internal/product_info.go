@@ -9,7 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func (s *server) AddProduct(ctx context.Context, product *pb.Product) (*pb.ProductID, error) {
+func (s *Server) AddProduct(ctx context.Context, product *pb.Product) (*pb.ProductID, error) {
 	id, err := uuid.NewV4()
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (s *server) AddProduct(ctx context.Context, product *pb.Product) (*pb.Produ
 	return &pb.ProductID{Value: product.Id}, status.New(codes.OK, "").Err()
 }
 
-func (s *server) GetProduct(ctx context.Context, id *pb.ProductID) (*pb.Product, error) {
+func (s *Server) GetProduct(ctx context.Context, id *pb.ProductID) (*pb.Product, error) {
 	if s.productMap == nil {
 		return nil, nil
 	}

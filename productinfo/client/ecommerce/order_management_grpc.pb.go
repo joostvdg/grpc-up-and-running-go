@@ -22,6 +22,7 @@ type OrderManagementClient interface {
 	SearchOrders(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (OrderManagement_SearchOrdersClient, error)
 	UpdateOrders(ctx context.Context, opts ...grpc.CallOption) (OrderManagement_UpdateOrdersClient, error)
 	ProcessOrders(ctx context.Context, opts ...grpc.CallOption) (OrderManagement_ProcessOrdersClient, error)
+	AddOrder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
 type orderManagementClient struct {
@@ -138,6 +139,15 @@ func (x *orderManagementProcessOrdersClient) Recv() (*CombinedShipment, error) {
 	return m, nil
 }
 
+func (c *orderManagementClient) AddOrder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
+	err := c.cc.Invoke(ctx, "/ecommerce.OrderManagement/addOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderManagementServer is the server API for OrderManagement service.
 // All implementations should embed UnimplementedOrderManagementServer
 // for forward compatibility
@@ -146,6 +156,7 @@ type OrderManagementServer interface {
 	SearchOrders(*wrapperspb.StringValue, OrderManagement_SearchOrdersServer) error
 	UpdateOrders(OrderManagement_UpdateOrdersServer) error
 	ProcessOrders(OrderManagement_ProcessOrdersServer) error
+	AddOrder(context.Context, *Order) (*wrapperspb.StringValue, error)
 }
 
 // UnimplementedOrderManagementServer should be embedded to have forward compatible implementations.
@@ -163,6 +174,9 @@ func (UnimplementedOrderManagementServer) UpdateOrders(OrderManagement_UpdateOrd
 }
 func (UnimplementedOrderManagementServer) ProcessOrders(OrderManagement_ProcessOrdersServer) error {
 	return status.Errorf(codes.Unimplemented, "method ProcessOrders not implemented")
+}
+func (UnimplementedOrderManagementServer) AddOrder(context.Context, *Order) (*wrapperspb.StringValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddOrder not implemented")
 }
 
 // UnsafeOrderManagementServer may be embedded to opt out of forward compatibility for this service.
@@ -267,6 +281,24 @@ func (x *orderManagementProcessOrdersServer) Recv() (*wrapperspb.StringValue, er
 	return m, nil
 }
 
+func _OrderManagement_AddOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Order)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderManagementServer).AddOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ecommerce.OrderManagement/AddOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderManagementServer).AddOrder(ctx, req.(*Order))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _OrderManagement_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "ecommerce.OrderManagement",
 	HandlerType: (*OrderManagementServer)(nil),
@@ -274,6 +306,10 @@ var _OrderManagement_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getOrder",
 			Handler:    _OrderManagement_GetOrder_Handler,
+		},
+		{
+			MethodName: "addOrder",
+			Handler:    _OrderManagement_AddOrder_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

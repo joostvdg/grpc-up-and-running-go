@@ -11,6 +11,7 @@ service OrderManagement {
   rpc searchOrders(google.protobuf.StringValue) returns (stream Order);
   rpc updateOrders(stream Order) returns (google.protobuf.StringValue);
   rpc processOrders(stream google.protobuf.StringValue) returns (stream CombinedShipment);
+  rpc addOrder(Order) returns (google.protobuf.StringValue);
 }
 
 message Order {
